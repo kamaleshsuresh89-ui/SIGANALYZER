@@ -1,0 +1,27 @@
+# ==============================================================================
+# SIGANALYZER Software Repository Release Notification Action
+# ==============================================================================
+# Triggered when a new release is published in kamaleshsuresh89-ui/SIGANALYZER.
+# Dispatches a repository_dispatch event to kamaleshsuresh89-ui/SIGANALYZER-WEBSITE
+# to trigger automatic synchronization of release metadata, download URLs, and
+# SHA-256 checksums into the official website Download Center.
+# ==============================================================================
+
+name: Notify Website on Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  notify-website:
+    name: Dispatch Release Event to Website Repo
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Website Release Synchronization
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.WEBSITE_SYNC_TOKEN }}
+          repository: kamaleshsuresh89-ui/SIGANALYZER-WEBSITE
+          event-type: release-published
+          client-payload: '{"tag": "${{ github.event.release.tag_name }}", "release_id": "${{ github.event.release.id }}"}'
