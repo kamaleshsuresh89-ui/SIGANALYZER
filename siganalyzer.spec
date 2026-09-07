@@ -1,5 +1,5 @@
-# -*- mode: python ; coding: utf-8 -*-
-
+import os
+import sys
 from PyInstaller.utils.hooks import collect_submodules, collect_data_files
 
 block_cipher = None
@@ -18,13 +18,16 @@ hidden_imports = [
     'onnxruntime',
     'jinja2',
     'sqlite3',
+    'pydantic',
+    'pydantic_core',
+    'sklearn',
 ]
 hidden_imports += collect_submodules('siganalyzer')
 
 # Assets and resources
-datas = [
-    ('assets', 'assets'),
-]
+datas = []
+if os.path.isdir('assets'):
+    datas.append(('assets', 'assets'))
 
 a = Analysis(
     ['src/siganalyzer/__main__.py'],
@@ -56,7 +59,7 @@ exe = EXE(
     upx=True,
     console=False,
     disable_windowed_traceback=False,
-    argv_emulation=True,
+    argv_emulation=(sys.platform == 'darwin'),
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
@@ -73,9 +76,10 @@ coll = COLLECT(
     name='siganalyzer',
 )
 
-app = BUNDLE(
-    coll,
-    name='SIGANALYZER.app',
-    icon=None,
-    bundle_identifier='com.siganalyzer.desktop',
-)
+if sys.platform == 'darwin':
+    app = BUNDLE(
+        coll,
+        name='SIGANALYZER.app',
+        icon=None,
+        bundle_identifier='com.siganalyzer.desktop',
+    )
